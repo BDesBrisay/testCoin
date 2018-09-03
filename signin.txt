@@ -1,0 +1,156 @@
+import React from 'react';
+import firebase from 'react-native-firebase';
+import { 
+  StyleSheet, 
+  Text, 
+  View, 
+  Platform, 
+  StatusBar,
+  TouchableHighlight  
+} from 'react-native';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
+import { storeUserData, storeToken } from '../../utils/userState';
+import MyTextInput from '../Common/MyTextInput';
+import Button from '../Common/Button';
+
+class SignIn extends React.Component {
+  state = {
+    email: '',
+    password: ''
+  };
+
+  handleSignIn = async (values) => {
+    try {
+      await firebase.auth().signInAndRetrieveDataWithEmailAndPassword(values.email, values.password);
+      const idToken = await firebase.auth().currentUser.getIdToken();
+      
+      const { data: { userAuth: { user, token } } } = await this.props.mutate({
+        variables: {
+          token: idToken
+        }
+      });
+
+      await storeUserData(user);
+      await storeToken(token);
+
+      this.props.navigation.navigate('App');
+    }
+    catch (error) {
+      const { code, message } = error;
+      console.error(error);
+    } 
+  }
+
+  render() {
+    return (
+      <KeyboardAwareScrollView 
+        extraHeight={100}
+        keyboardShouldPersistTaps='handled'
+        contentContainerStyle={styles.container}
+      >
+        <Text style={styles.header}>Sign In</Text>
+        <MyTextInput 
+          value={this.state.email} 
+          onChangeText={(value) => this.setState({email: value})} 
+          placeholder="Email" 
+          autoCapitalize="none"
+          autoCorrect={false}
+          style={styles.input}
+        />
+        <MyTextInput 
+          value={this.state.password} 
+          onChangeText={(value) => this.setState({password: value})} 
+          placeholder="Password"
+          secureTextEntry={true} 
+          autoCapitalize="none"
+          autoCorrect={false}
+          style={styles.input}
+        />
+        <Button
+          containerStyle={styles.mainButton}
+          labelStyle={styles.mainLabel}
+          label='Sign In' 
+          size='large' 
+          color='#0ae' 
+          onPress={() => this.handleSignIn(this.state)} 
+        />
+        <TouchableHighlight
+          onPress={() => this.props.navigation.navigate('SignUp')}
+          underlayColor='rgba(0,0,0,0)' 
+        >
+          <Text style={styles.signInLink}>Need to make an accout? <Text style={styles.signInSpan}>Sign Up</Text></Text>
+        </TouchableHighlight>
+        <StatusBar
+          backgroundColor="#fff"
+          barStyle="dark-content" 
+        />
+      </KeyboardAwareScrollView>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 50,
+    paddingTop: 80,
+    paddingBottom: 30,
+    display: 'flex',
+    flex: 1,
+    width: '100%',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  input: {
+    width: '100%'
+  },
+  button: {
+    width: '100%',
+    marginTop: 15
+  },
+  mainButton: {
+    backgroundColor: '#0ae',
+    width: '100%',
+    marginTop: 30,
+    marginBottom: 20
+  },
+  mainLabel: {
+    color: 'white'
+  },
+  header: {
+    color: '#0ae',
+    fontSize: 26,
+    fontWeight: 'bold',
+    marginBottom: 10
+  },
+  signInLink: {
+    fontSize: 16
+  },
+  signInSpan: {
+    color: '#0ae',
+    fontWeight: 'bold'
+  }
+});
+
+const SignInMutation = gql`
+  mutation userAuth($token: String!) {
+    userAuth(token: $token) {
+      user {
+        id
+        email
+        name {
+          first
+          last
+        }
+      }
+      token
+      success
+    }
+  }
+`;
+
+// export default graphql(SignInMutation)(SignIn);
+export default SignIn;

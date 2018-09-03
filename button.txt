@@ -1,0 +1,101 @@
+import React from 'react';
+import { View, Text, TouchableHighlight, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
+const Button = ({ 
+  label, 
+  icon, 
+  size='small', 
+  onPress, 
+  color, 
+  underlayColor='#ddd', 
+  containerStyle,
+  labelStyle
+}) => (
+  <TouchableHighlight
+    onPress={onPress}
+    underlayColor={color ? color+'8' : underlayColor}
+    style={[
+      styles.button, 
+      size === 'small' ? styles.smallButton : styles.largeButton, 
+      color && {borderColor: color},
+      containerStyle && containerStyle
+    ]}
+  >
+    <View style={styles.inner}>
+      {icon && 
+        <Icon 
+          name={icon} 
+          style={[
+            styles.icon, 
+            size === 'large' && styles.largeIcon, 
+            color && {color: color}
+          ]} 
+        />
+      }
+      {label && 
+        <Text 
+          style={[
+            styles.label, 
+            size === 'large' && styles.largeLabel, 
+            color && {color: color},
+            labelStyle && labelStyle
+          ]}
+        >
+          {label.toUpperCase()}
+        </Text>
+      }
+    </View>
+  </TouchableHighlight>
+);
+
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: 'white',
+    borderWidth: 3,
+    borderColor: '#0ae',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    // elevation: 1,
+  },
+  smallButton: {
+    paddingVertical: 2,
+    paddingHorizontal: 10,
+    height: 30,
+    borderRadius: 15,
+  },
+  largeButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    height: 45,
+    borderRadius: 22.5,
+  },
+  inner: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    alignItems: 'center',
+  },
+  largeIcon: {
+    fontSize: 22
+  },
+  icon: {
+    color: '#0ae',
+    marginHorizontal: 3,
+    fontSize: 16
+  },
+  largeLabel: {
+    fontSize: 17
+  },
+  label: {
+    color: '#0ae',
+    marginHorizontal: 3,
+    marginBottom: 3,
+    marginTop: 2,
+    fontSize: 14,
+    fontWeight: 'bold'
+  }
+});
+
+export default Button;

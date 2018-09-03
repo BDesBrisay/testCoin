@@ -1,0 +1,44 @@
+import React from 'react';
+import { View, TextInput, StyleSheet } from 'react-native';
+
+class MyTextInput extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      focused: false
+    }
+  }
+
+  render() {
+    const { style, keyboardType='default', ...inputProps } = this.props;
+
+    return (
+      <View style={[styles.wrapper, this.state.focused ? {borderColor: '#0ae'} : {borderColor: '#ddd'}, style && style]}>
+        <TextInput 
+          {...inputProps} 
+          style={styles.textInput}
+          keyboardType={keyboardType}
+          onFocus={() => this.setState({focused: true})}
+          onEndEditing={() => this.setState({focused: false})}
+          underlineColorAndroid='rgba(0,0,0,0)'
+          selectionColor='#0ae'
+        />
+      </View>
+    )
+  }
+};
+
+const styles = StyleSheet.create({
+  wrapper: {
+    paddingVertical: 5,
+    marginBottom: 3,
+    borderBottomWidth: 2
+  },
+  textInput: {
+    fontSize: 16,
+    borderBottomWidth: 0
+  }
+});
+
+export default MyTextInput;
